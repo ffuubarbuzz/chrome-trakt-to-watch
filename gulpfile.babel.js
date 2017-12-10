@@ -4,6 +4,8 @@ import gulpLoadPlugins from 'gulp-load-plugins';
 import del from 'del';
 import runSequence from 'run-sequence';
 import {stream as wiredep} from 'wiredep';
+import webpackStream from 'webpack-stream';
+import webpack from 'webpack'
 
 const $ = gulpLoadPlugins();
 
@@ -31,6 +33,9 @@ function lint(files, options) {
 gulp.task('lint', lint('app/scripts.babel/**/*.js', {
   env: {
     es6: true
+  },
+  parserOptions: {
+    sourceType: 'module'
   }
 }));
 
@@ -85,11 +90,13 @@ gulp.task('chromeManifest', () => {
 });
 
 gulp.task('babel', () => {
-  return gulp.src('app/scripts.babel/**/*.js')
-      .pipe($.babel({
-        presets: ['es2015']
+  return gulp.src('app/scripts.babel')
+    .pipe(webpackStream(require('./webpack.config.js'), webpack)
+      .on('error', function (err) {
+        console.log(err);
+        this.emit('end');
       }))
-      .pipe(gulp.dest('app/scripts'));
+    .pipe(gulp.dest('app/scripts/'))
 });
 
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
@@ -100,12 +107,13 @@ gulp.task('watch', ['lint', 'babel'], () => {
   gulp.watch([
     'app/*.html',
     'app/scripts/**/*.js',
+    'app/scripts/**/*.vue',
     'app/images/**/*',
     'app/styles/**/*',
     'app/_locales/**/*.json'
   ]).on('change', $.livereload.reload);
 
-  gulp.watch('app/scripts.babel/**/*.js', ['lint', 'babel']);
+  gulp.watch(['app/scripts.babel/**/*.js', 'app/scripts.babel/**/*.vue'], ['lint', 'babel']);
   gulp.watch('bower.json', ['wiredep']);
 });
 
@@ -124,7 +132,7 @@ gulp.task('wiredep', () => {
 gulp.task('package', function () {
   var manifest = require('./dist/manifest.json');
   return gulp.src('dist/**')
-      .pipe($.zip('chrome_ext-' + manifest.version + '.zip'))
+      .pipe($.zip('chrome ext-' + manifest.version + '.zip'))
       .pipe(gulp.dest('package'));
 });
 

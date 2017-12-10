@@ -18,8 +18,13 @@
     "tabs",
     "contextMenus",
     "http://*/*",
-    "https://*/*"
+    "https://*/*",
+    "storage"
   ],
+  "options_ui": {
+    "page": "options.html",
+    "chrome_style": true
+  },
   "content_scripts": [
     {
       "matches": [
@@ -32,5 +37,13 @@
       "run_at": "document_end",
       "all_frames": false
     }
-  ]
+  ],
+  "browser_action": {
+    "default_icon": {
+      "19": "images/icon-19.png",
+      "38": "images/icon-38.png"
+    },
+    "default_title": "chrome ext"
+  },
+  "web_accessible_resources": ["iframe.html"]
 }
