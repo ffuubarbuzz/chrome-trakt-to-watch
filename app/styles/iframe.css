@@ -1,0 +1,48 @@
+:root {
+	background: #37474F;
+	font-family: -apple-system,
+	             BlinkMacSystemFont,
+	             "Segoe UI",
+	             Roboto,
+	             Oxygen-Sans,
+	             Ubuntu,
+	             Cantarell,
+	             "Helvetica Neue",
+	             sans-serif;
+	width: 276px;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+}
+.results {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	grid-auto-rows: 146px;
+	margin: 0;
+	padding: 00;
+	list-style: none;
+}
+.results__item {
+	cursor: pointer;
+}
+
+.result {
+	position: relative;
+}
+
+.result__image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.result__title {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background: rgba(0, 0, 0, .6);
+	color: #fff;
+}

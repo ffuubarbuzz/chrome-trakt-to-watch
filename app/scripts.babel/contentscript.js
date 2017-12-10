@@ -8,6 +8,7 @@ const actions = {
 	addToWatchList,
 	requestData,
 	closeIframe: _unattachIframe,
+	setIframeHeight,
 };
 
 chrome.runtime.onMessage.addListener(request => {
@@ -29,10 +30,14 @@ function requestData() {
 	iframe.contentWindow.postMessage(resultsCached, '*');
 }
 
+function setIframeHeight(height) {
+	iframe && (iframe.style.height = `${height}px`);
+}
+
 function _createIframe() {
 	let iframe = document.createElement('iframe');
 	iframe.src = chrome.extension.getURL('iframe.html');
-	iframe.setAttribute('style', 'position: fixed; top: 10px; right: 10px; width: 300px; height: 300px; z-index: 2147483647;');
+	iframe.setAttribute('style', 'position: fixed; top: 10px; right: 10px; width: 276px; height: 292px; max-height:292px; z-index: 2147483647;');
 	return iframe;
 }
 
