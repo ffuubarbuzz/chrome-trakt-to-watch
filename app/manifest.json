@@ -17,9 +17,11 @@
   "permissions": [
     "tabs",
     "contextMenus",
+    "identity",
+    "storage",
     "http://*/*",
     "https://*/*",
-    "storage"
+    "https://api.trakt.tv/oauth/authorize"
   ],
   "options_ui": {
     "page": "options.html",
