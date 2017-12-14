@@ -3,10 +3,16 @@
   "private": true,
   "version": "0.0.0",
   "dependencies": {
-    "vue": "^2.5.9"
+    "vue": "^2.5.9",
+    "moment": "momentjs#^2.19.4"
   },
   "devDependencies": {
     "chai": "^4.1.2",
     "mocha": "^4.0.1"
+  },
+  "overrides": {
+    "vue": {
+      "main": "dist/vue.js"
+    }
   }
 }

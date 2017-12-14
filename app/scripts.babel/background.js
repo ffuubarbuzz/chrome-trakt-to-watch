@@ -28,12 +28,16 @@ const contextMenuID = chrome.contextMenus.create({
 });
 
 function _contextMenuClick(info) {
-	const searchTerm = encodeURIComponent(info.selectionText);
-	const queryURL = `https://api.themoviedb.org/3/search/movie?api_key=${theMovieDbApiKey}&query=${searchTerm}`;
+	const queryStr = info.selectionText;
+	const queryTerm = encodeURIComponent(queryStr);
+	const queryURL = `https://api.themoviedb.org/3/search/movie?api_key=${theMovieDbApiKey}&query=${queryTerm}`;
 	fetch(queryURL).then(response => {
 		return response.json();
 	}).then(json => {
-		_sendActionToCurrentTab('addToWatchList', json.results)
+		_sendActionToCurrentTab('showSearchResults', {
+			queryStr,
+			items: json.results,
+		});
 	});
 }
 
