@@ -2,7 +2,7 @@
 
 let iframe;
 let isIframeAttached = false;
-let resultsCached = [];
+let iframeDataCached = {};
 const iframeStyles = `
 	position: fixed;
 	top: 10px;
@@ -16,7 +16,7 @@ const iframeStyles = `
 
 
 const actions = {
-	showSearchResults,
+	showIframe,
 	requestData,
 	closeIframe: _unattachIframe,
 	setIframeHeight,
@@ -26,8 +26,8 @@ chrome.runtime.onMessage.addListener(request => {
 	actions[request.action](request.payload);
 });
 
-function showSearchResults(payload) {
-	Object.assign(resultsCached, payload);
+function showIframe(payload) {
+	Object.assign(iframeDataCached, payload);
 	if (!iframe) {
 		iframe = _createIframe();
 	}
@@ -39,7 +39,7 @@ function showSearchResults(payload) {
 }
 
 function requestData() {
-	iframe.contentWindow.postMessage(resultsCached, '*');
+	iframe.contentWindow.postMessage(iframeDataCached, '*');
 }
 
 function setIframeHeight(height) {

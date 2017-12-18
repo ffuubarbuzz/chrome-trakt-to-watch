@@ -4,6 +4,11 @@ import Vue from 'vue';
 import Iframe from './vue/iframe.vue';
 import moment from '../bower_components/moment/moment.js';
 
+const messageHandlers = {
+	error: showError,
+	results: showResults,
+}
+
 Vue.filter('formatDate', function(value, momentFormat) {
 	if (value) {
 		return moment(String(value)).format(momentFormat);
@@ -16,19 +21,26 @@ const app = new Vue({
 		return c(Iframe, {
 			props: {
 				items: this.items,
-				queryStr: this.queryStr,
+				errors: this.errors,
+				query: this.query,
 			},
 		})
 	},
 	data: {
 		items: [],
-		queryStr: '',
+		errors: [],
+		query: '',
 	},
 	updated: _setIframeHeight,
 });
 
 window.addEventListener('message', event => {
-	Object.assign(app, event.data);
+	if (!event.data.type
+	    || !messageHandlers[event.data.type]
+	    || typeof messageHandlers[event.data.type] !== 'function') {
+		return;
+	}
+	messageHandlers[event.data.type](event.data.payload);
 });
 
 window.addEventListener('load', event => {
@@ -39,6 +51,14 @@ window.addEventListener('DOMContentLoaded', event => {
 	_setIframeHeight();
 	_sendActionToCurrentTab('requestData');
 });
+
+function showError(payload) {
+	app.errors.push(payload);
+}
+
+function showResults(payload) {
+	Object.assign(app, payload);
+}
 
 function _sendActionToCurrentTab(action, payload) {
 	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {

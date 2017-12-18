@@ -1,4 +1,4 @@
-
+@charset "utf-8";
 :root {
 	background: #37474F;
 	font-family: -apple-system,
@@ -54,6 +54,21 @@ body {
 
 .result {
 	position: relative;
+}
+
+.result_type_movie::before,
+.result_type_tv::before {
+	position: absolute;
+	top: 3px;
+	right: 3px;
+}
+
+.result_type_movie::before {
+	content: '🍿';
+}
+
+.result_type_tv::before {
+	content: '🎥';
 }
 
 .result__image {

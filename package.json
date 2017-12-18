@@ -48,6 +48,7 @@
     "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.1",
     "css-loader": "^0.28.7",
+    "moment": "^2.20.0",
     "vue": "^2.5.9",
     "vue-loader": "^13.5.0",
     "vue-template-compiler": "^2.5.9",
