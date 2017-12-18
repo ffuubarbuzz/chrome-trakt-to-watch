@@ -5,6 +5,7 @@ module.exports = {
 		chromereload: './chromereload.js',
 		contentscript: './contentscript.js',
 		iframe: './iframe.js',
+		options: './options.js',
 	},
 	output: { filename: '[name].js' },
 	module: {
@@ -15,5 +16,5 @@ module.exports = {
 			test: /\.vue$/,
 			loader: 'vue-loader'
 		}]
-	}
+	},
 }
