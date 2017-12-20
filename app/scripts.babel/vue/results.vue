@@ -8,34 +8,18 @@
 			<div class="results__number">{{items.length}}</div>
 		</div>
 		<ul class="results__grid">
-			<li class="results__item result"
-			    :class="`result_type_${item.media_type}`"
-			    v-for="item in items"
-			    @click="select(item)"
-			>
-				<img class="result__image"
-				     :alt="item.name"
-				     :title="item.name"
-				     :srcset="`https://image.tmdb.org/t/p/w92${item.poster_path} 1x, https://image.tmdb.org/t/p/w185${item.poster_path} 2x`"
-				     v-if="item.poster_path"
-				>
-				<div class="result__no-image"
-				     :title="item.name"
-				     v-else
-				>
-					<div>
-						<p class="result__title">{{item.name}}</p>
-						<p class="result__year">{{item.release_date | formatDate('YYYY') }}</p>
-					</div>
-				</div>
-			</li>
+			<Result v-for="item in items" :item="item" :key="item.name+item.release_date" />
 		</ul>
 	</div>
 </template>
 
 <script>
+	import Result from './result.vue';
 	export default {
 		props: ['items', 'query'],
+		components: {
+			Result,
+		},
 		methods: {
 			select (item) {
 				chrome.runtime.sendMessage({
@@ -98,48 +82,5 @@
 
 	.results__number {
 		margin-left: auto;
-	}
-
-	.result {
-		position: relative;
-	}
-
-	.result_type_movie::before,
-	.result_type_tv::before {
-		position: absolute;
-		top: 3px;
-		right: 3px;
-	}
-
-	.result_type_movie::before {
-		content: '🍿';
-	}
-
-	.result_type_tv::before {
-		content: '🎥';
-	}
-
-	.result__image {
-		display: block;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-	.result__no-image {
-		width: calc(100% - 2px);
-		height: calc(100% - 2px);
-		margin: 1px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		border: 1px solid #fff;
-		padding: 1em;
-		text-align: center;
-	}
-	.result__year {
-		font-size: .8em;
-		color: #E0F2F1;
 	}
 </style>
