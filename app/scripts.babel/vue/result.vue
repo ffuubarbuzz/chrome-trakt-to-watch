@@ -41,6 +41,7 @@
 <style>
 	.result {
 		position: relative;
+		overflow: hidden;
 	}
 
 	.result_type_movie::before,
