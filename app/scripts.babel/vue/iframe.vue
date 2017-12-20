@@ -1,46 +1,42 @@
 <template>
-	<ul class="results" v-if="!!items.length && !errors.length">
-		<li class="results__item result"
-		    :class="`result_type_${item.media_type}`"
-		    v-for="item in items"
-		    @click="select(item)"
-		>
-			<img class="result__image"
-			     :alt="item.name"
-			     :title="item.name"
-			     :src="`https://image.tmdb.org/t/p/w92${item.poster_path}`"
-			     v-if="item.poster_path"
-			>
-			<div class="result__no-image"
-			     :title="item.name"
-			     v-else
-			>
-				<div>
-					<p class="result__title">{{item.name}}</p>
-					<p class="result__year">{{item.release_date | formatDate('YYYY') }}</p>
-				</div>
-			</div>
-		</li>
-	</ul>
-	<ul class="errors" v-else-if="errors.length">
-		<li class="errors__item"
-		    v-for="error in errors">
-			{{ error }}
-		</li>
-	</ul>
-	<p class="results results_empty" v-else>No results found for "{{ query }}"</p>
+	<main class="main">
+		<HeadBar class="main__head" />
+		<div class="main__content">
+			<Errors v-if="errors.length" :messages="errors" />
+			<Results v-else :items="items" :query="query" />
+		</div>
+	</main>
 </template>
 
 <script>
+	import HeadBar from './head.vue';
+	import Errors from './errors.vue';
+	import Results from './results.vue';
 	export default {
 		props: ['items', 'query', 'errors'],
-		methods: {
-			select: item => {
-				chrome.runtime.sendMessage({
-					type: 'addToWatchlist',
-					payload: item.id
-				});
-			},
-		}
+		components: {
+			HeadBar,
+			Errors,
+			Results,
+		},
 	};
 </script>
+
+<style>
+	.main {
+		background: #fff;
+		border-radius: 2px;
+		box-shadow: 0 0 35px rgba(0, 0, 0, .4);
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.main__head {
+		flex: 0 0 auto;
+	}
+	.main__content {
+		flex: 1 1 0;
+		max-height: 100%;
+	}
+</style>

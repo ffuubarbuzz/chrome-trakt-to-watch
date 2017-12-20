@@ -67,5 +67,5 @@ function _sendActionToCurrentTab(action, payload) {
 }
 
 function _setIframeHeight() {
-	_sendActionToCurrentTab('setIframeHeight', document.documentElement.scrollHeight);
+	// _sendActionToCurrentTab('setIframeHeight', document.documentElement.scrollHeight);
 }

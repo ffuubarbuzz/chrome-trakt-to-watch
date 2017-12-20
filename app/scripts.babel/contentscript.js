@@ -7,9 +7,8 @@ const iframeStyles = `
 	position: fixed;
 	top: 10px;
 	right: 10px;
-	width: 276px;
-	height: 292px;
-	max-height:292px;
+	width: 348px;
+	height: 495px;
 	border: none;
 	z-index: 2147483647;
 `;
