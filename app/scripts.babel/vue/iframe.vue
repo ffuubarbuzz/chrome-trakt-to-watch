@@ -3,6 +3,7 @@
 		<HeadBar class="main__head" />
 		<div class="main__content">
 			<Errors v-if="errors.length" :messages="errors" />
+			<NoResults v-else-if="!items.length" :query="query" />
 			<Results v-else :items="items" :query="query" />
 		</div>
 	</main>
@@ -12,12 +13,14 @@
 	import HeadBar from './head.vue';
 	import Errors from './errors.vue';
 	import Results from './results.vue';
+	import NoResults from './no-results.vue';
 	export default {
 		props: ['items', 'query', 'errors'],
 		components: {
 			HeadBar,
 			Errors,
 			Results,
+			NoResults,
 		},
 	};
 </script>
@@ -37,6 +40,6 @@
 	}
 	.main__content {
 		flex: 1 1 0;
-		max-height: 100%;
+		max-height: calc(100% - 45px);
 	}
 </style>

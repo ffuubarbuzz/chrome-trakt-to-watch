@@ -15,6 +15,16 @@ Vue.filter('formatDate', function(value, momentFormat) {
 	}
 });
 
+Vue.mixin({
+	methods: {
+		_sendActionToCurrentTab(action, payload) {
+			chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+				chrome.tabs.sendMessage(tabs[0].id, {action, payload});
+			});
+		},
+	},
+});
+
 const app = new Vue({
 	el: '#app',
 	render: function(c) { 
