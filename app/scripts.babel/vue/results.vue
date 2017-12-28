@@ -1,32 +1,24 @@
 <template>
-	<p class="results results_empty" v-if="!items.length">No results found for "{{ query }}"</p>
-	<div class="results" v-else>
+	<div class="results">
 		<div class="results__summary">
 			<div class="results__term">
 				Search results for <strong class="results__query">{{query}}</strong>
 			</div>
-			<div class="results__number">{{items.length}}</div>
+			<div class="results__number">{{itemsOrder.length}}</div>
 		</div>
 		<ul class="results__grid">
-			<Result v-for="item in items" :item="item" :key="item.name+item.release_date" />
+			<Result v-for="item in itemsOrder" :item="items[item]" :key="item.id" />
 		</ul>
 	</div>
 </template>
 
 <script>
 	import Result from './result.vue';
+	import { mapState } from 'vuex';
 	export default {
-		props: ['items', 'query'],
+		computed: mapState(['items', 'selectedItem', 'itemsOrder', 'query']),
 		components: {
 			Result,
-		},
-		methods: {
-			select (item) {
-				chrome.runtime.sendMessage({
-					type: 'addToWatchlist',
-					payload: item.id
-				});
-			},
 		},
 	};
 </script>

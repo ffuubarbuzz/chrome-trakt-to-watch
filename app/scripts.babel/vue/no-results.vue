@@ -7,8 +7,9 @@
 </template>
 
 <script>
+	import { mapState } from 'vuex';
 	export default {
-		props: ['query'],
+		computed: mapState(['query']),
 		methods: {
 			close () {
 				this._sendActionToCurrentTab('closeIframe');

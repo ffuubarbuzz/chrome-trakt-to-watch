@@ -5,6 +5,7 @@
 		</strong>
 		<div class="head__controls">
 			<button class="head__control" @click="openOptions">⚙</button>
+			<button class="head__control" @click="close">❌</button>
 		</div>
 	</header>
 </template>
@@ -12,6 +13,9 @@
 <script>
 	export default {
 		methods: {
+			close () {
+				this._sendActionToCurrentTab('closeIframe');
+			},
 			openOptions () {
 				chrome.runtime.openOptionsPage();
 			},
@@ -39,7 +43,7 @@
 	}
 
 	.head__control {
-		margin: 0;
+		margin: 0 0 5px;
 		padding: 0;
 		border: none;
 		background: none;

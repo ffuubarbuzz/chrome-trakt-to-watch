@@ -1,10 +1,14 @@
 <template>
 	<main class="main">
 		<HeadBar class="main__head" />
+		<Errors />
 		<div class="main__content">
-			<Errors v-if="errors.length" :messages="errors" />
-			<NoResults v-else-if="!items.length" :query="query" />
-			<Results v-else :items="items" :query="query" />
+			<Detailed v-if="selectedItem" :item="items[selectedItem]" />
+			<Results v-else-if="itemsOrder.length" />
+			<NoResults v-else-if="query" />
+			<div v-else class="main__loading">
+				<img src="/images/throbber_medium.svg" width="28" height="28" alt="">
+			</div>
 		</div>
 	</main>
 </template>
@@ -13,13 +17,16 @@
 	import HeadBar from './head.vue';
 	import Errors from './errors.vue';
 	import Results from './results.vue';
+	import Detailed from './detailed.vue';
 	import NoResults from './no-results.vue';
+	import { mapState } from 'vuex';
 	export default {
-		props: ['items', 'query', 'errors'],
+		computed: mapState(['items', 'itemsOrder', 'selectedItem', 'query', 'errors']),
 		components: {
 			HeadBar,
 			Errors,
 			Results,
+			Detailed,
 			NoResults,
 		},
 	};
@@ -40,6 +47,12 @@
 	}
 	.main__content {
 		flex: 1 1 0;
-		max-height: calc(100% - 45px);
+		min-height: 0;
+	}
+	.main__loading {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
 	}
 </style>

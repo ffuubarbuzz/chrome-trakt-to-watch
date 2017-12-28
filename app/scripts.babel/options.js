@@ -5,6 +5,10 @@ import Options from './vue/options.vue';
 
 Vue.use(Vuex);
 
+const messageHandlers = {
+	showMessage,
+};
+
 const store = new Vuex.Store({
 	state: {
 		traktAuth: {
@@ -12,6 +16,7 @@ const store = new Vuex.Store({
 			accessToken: '',
 			refreshToken: '',
 		},
+		messages: [],
 	},
 	mutations: {
 		setTraktAccessToken (state, token) {
@@ -22,6 +27,15 @@ const store = new Vuex.Store({
 		},
 		setTraktAuthBusy (state, isBusy) {
 			state.traktAuth.isBusy = isBusy;
+		},
+		addMessage(state, message) {
+			state.messages.push(message);
+		},
+		removeMessage(state, messageIndex) {
+			if (messageIndex > state.messages.length - 1) {
+				return;
+			}
+			state.messages.splice(messageIndex, 1);
 		},
 	},
 	getters: {
@@ -43,9 +57,10 @@ const store = new Vuex.Store({
 		},
 		authorize ({commit}) {
 			chrome.runtime.sendMessage({
+				target: 'background',
 				type: 'authorizeTrakt',
 			}, response => {
-				if (response === 'failed') {
+				if (response === 'fail') {
 					_authFailed();
 				}
 				commit('setTraktAuthBusy', false);
@@ -54,6 +69,7 @@ const store = new Vuex.Store({
 		},
 		unauthorize ({commit}) {
 			chrome.runtime.sendMessage({
+				target: 'background',
 				type: 'unauthorizeTrakt',
 			});
 			commit('setTraktAuthBusy', true);
@@ -76,10 +92,25 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 		}
 		let storageChange = changes[key];
 		if (key === 'accessToken') {
-			commit('setTraktAccessToken', storageChange.newValue);
+			store.commit('setTraktAccessToken', storageChange.newValue);
 		}
 	}
 });
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+	if (!message.type
+	    || !messageHandlers[message.type]
+	    || typeof messageHandlers[message.type] !== 'function'
+	    || message.target !== 'options') {
+		return;
+	}
+	messageHandlers[message.type](message.payload, sendResponse);
+	return true;
+});
+
+function showMessage(message) {
+	store.commit('addMessage', message);
+}
 
 function _authFailed() {
 	//todo: implement

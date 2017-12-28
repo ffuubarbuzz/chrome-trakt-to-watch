@@ -1,7 +1,7 @@
 <template>
 	<button :disabled="isDisabled" @click="toggleAuthorize">
-		<span v-if="isAuthorized">Unlink Trakt account</span>
-		<span v-else>Link Trakt account</span>
+		<template v-if="isAuthorized">Unlink Trakt account</template>
+		<template v-else>Link Trakt account</template>
 	</button>
 </template>
 

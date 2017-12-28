@@ -3,19 +3,32 @@
 import moment from 'moment';
 
 const TMDB_API_KEY = '1423559168fef1697183d16836a6019b';
-const TRAKT_API_CONFIG = {
+const TRAKT_API_CONFIG = Object.freeze({
 	CLIENT_ID: '8988a8bf210a06fd030cbb614bab6a384d0bbeb42c6d3e91d02e8205842a810d',
 	CLIENT_SECRET: '563bb19a2b86d6335d607369298bee63aec5c87921f4d5649bfe384cb88fa394',
 	REDIRECT_URL: chrome.identity.getRedirectURL('provider_cb'),
 	get authorizeUrl() {
 		return `https://api.trakt.tv/oauth/authorize?response_type=code&client_id=${encodeURIComponent(this.CLIENT_ID)}&redirect_uri=${encodeURIComponent(this.REDIRECT_URL)}`;
 	},
-};
+});
+const CONTEXT_MENU_ITEM_ID = 'trakt_watchlist_ext';
+const TRAKT_CREDENTIALS_EMPTY = Object.freeze({
+	accessToken: false,
+	refreshToken: false,
+	tokenExpirationDate: false,
+});
+const traktCredentials = Object.assign({}, TRAKT_CREDENTIALS_EMPTY);
 
 const TRAKT_GRANT_TYPE_CREDENTIAL_NAMES = {
 	// these strings come from Trakt API
 	'authorization_code': 'code',
 	'refresh_token': 'refresh_token',
+}
+
+const TRAKT_MEDIA_TYPE_TO_WATCHLIST = {
+	// these strings come from Trakt API
+	'movie': 'movies',
+	'tv': 'shows',
 }
 
 const messageHandlers = {
@@ -26,53 +39,82 @@ const messageHandlers = {
 
 chrome.runtime.onInstalled.addListener(details => {
 	console.log('previousVersion', details.previousVersion);
+	_readTraktAuth()
+		.catch(console.log);
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	if (!message.type
 	    || !messageHandlers[message.type]
-	    || typeof messageHandlers[message.type] !== 'function') {
+	    || typeof messageHandlers[message.type] !== 'function'
+	    || message.target !== 'background') {
 		return;
 	}
 	messageHandlers[message.type](message.payload, sendResponse);
 	return true;
 });
 
-const contextMenuID = chrome.contextMenus.create({
+chrome.contextMenus.removeAll();
+chrome.contextMenus.create({
 	contexts: ['selection'],
 	title: 'Add movie to watchlist',
-	onclick: _contextMenuClick,
+	id: CONTEXT_MENU_ITEM_ID,
 });
 
+chrome.contextMenus.onClicked.addListener(_contextMenuClick);
+
+function _readTraktAuth() {
+	return new Promise((resolve, reject) => {
+		if (traktCredentials.accessToken
+		    && traktCredentials.refreshToken
+		    && traktCredentials.tokenExpirationDate) {
+			return resolve(traktCredentials);
+		}
+		chrome.storage.sync.get([
+			'accessToken',
+			'refreshToken',
+			'tokenExpirationDate',
+		], result => {
+			if (chrome.runtime.lastError) {
+				return reject(new Error(chrome.runtime.lastError.message));
+			}
+			const {
+				accessToken,
+				refreshToken,
+				tokenExpirationDate,
+			} = result;
+			const authObj = {
+				accessToken,
+				refreshToken,
+				tokenExpirationDate,
+			};
+			if (accessToken && refreshToken && tokenExpirationDate) {
+				Object.assign(traktCredentials, authObj);
+				return resolve(authObj);
+			} else {
+				return reject();
+			}
+		});
+	});
+}
+
 function _contextMenuClick(info) {
+	if (info.menuItemId !== CONTEXT_MENU_ITEM_ID) {
+		return;
+	}
 	_multiSearch(info.selectionText);
+	_sendActionToCurrentTab('showIframe', {
+		type: 'loading',
+	});
 }
 
 function _multiSearch(query) {
 	const queryTerm = encodeURIComponent(query);
 	const queryURL = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${queryTerm}`;
 	fetch(queryURL)
-		.then(response => {
-			if (response.ok) {
-				return response.json();
-			}
-			throw new Error('Network error');
-		})
-		.then(json => {
-			_sendActionToCurrentTab('showIframe', {
-				type: 'results',
-				payload: {
-					query,
-					items: json.results,
-				},
-			});
-		})
-		.catch(function(error) {
-			_sendActionToCurrentTab('showIframe', {
-				type: 'error',
-				payload: `There has been a problem with your fetch operation: ${error.message}`,
-			});
-		});
+		.then(_parseJSONResponse)
+		.then(_showResults.bind(undefined, query))
+		.catch(_showError);
 }
 
 function _sendActionToCurrentTab(action, payload) {
@@ -81,94 +123,187 @@ function _sendActionToCurrentTab(action, payload) {
 	});
 }
 
-function _sendToTrakt(traktId) {
-
-	chrome.storage.sync.get([
-		'accessToken',
-		'refreshToken',
-		'tokenExpirationDate',
-	], result => {
-		const {
-			accessToken,
-			refreshToken,
-			tokenExpirationDate,
-		} = result;
-		if (!accessToken
-		    || !refreshToken
-		    || _isDateExpired(tokenExpirationDate)) {
-			chrome.runtime.openOptionsPage();
+function _refreshTraktTokenIfNeeded(authObj) {
+	return new Promise((resolve, reject) => {
+		if (_isDateExpired(authObj.tokenExpirationDate)) {
+			return _getTraktAuthTokens({
+				grantType: 'refresh_token',
+				credential: authObj.traktRefreshToken,
+			}).then(_storeTraktAuth)
 		} else {
-			fetch('https://api.trakt.tv/sync/watchlist', {
+			return resolve(authObj);
+		}
+	});
+}
+
+function _sendToTrakt(item) {
+	return _readTraktAuth()
+		.then(_refreshTraktTokenIfNeeded)
+		.then(authObj => {
+			return fetch('https://api.trakt.tv/sync/watchlist', {
 				method: 'POST',
 				headers: new Headers({
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${accessToken}`,
+					'Authorization': `Bearer ${authObj.accessToken}`,
 					'trakt-api-version': '2',
 					'trakt-api-key': TRAKT_API_CONFIG.CLIENT_ID,
 				}),
 				body: JSON.stringify({
-					movies: [
+					[TRAKT_MEDIA_TYPE_TO_WATCHLIST[item.type]]: [
 						{
 							ids: {
-								tmdb: traktId
+								tmdb: item.id
 							}
 						}
 					],
 				}),
-			}).then(response => {
-				return response.json()
-			}).then(json => {console.log(json)});
-		}
-	});
+			});
+		}).then(_parseJSONResponse)
+		.catch(error => {
+			return _cleanTraktAuth()
+				.then(() => {
+					throw new Error('Can\'t add item to watchlist: Trakt not authorized');
+				});
+		});
 }
 
-function _saveTraktAccessToken(url) {
-	const params = new URLSearchParams(url.match(/^(.*?)(\?.*?)$/)[2]);
-	const token = params.get('code');
-	chrome.storage.sync.set({traktAccessToken: token});
-}
-
-function addToWatchlist(itemId) {
-	_sendToTrakt(itemId);
-	_sendActionToCurrentTab('closeIframe');
+function addToWatchlist(item, sendResponse, isRetry) {
+	return _sendToTrakt(item)
+		.then(_showItemAdded)
+		// todo ↑ show confirmation instead
+		.catch(error => {
+			if (isRetry) {
+				return;
+			}
+			_showError(error);
+			authorizeTrakt(undefined, sendResponse)
+				.then(() => {
+					addToWatchlist(item, sendResponse, true);
+				});
+		});
+	;
 }
 
 function authorizeTrakt(payload, sendResponse) {
-	chrome.storage.sync.get([
-		'accessToken',
-		'refreshToken',
-		'TokenExpirationDate',
-	], result => {
-		const {
-			traktAccessToken,
-			traktRefreshToken,
-			traktTokenExpirationDate,
-		} = result;
-		if (!traktAccessToken || !traktRefreshToken) {
-			chrome.identity.launchWebAuthFlow({
-				url: TRAKT_API_CONFIG.authorizeUrl,
-				'interactive': true,
-			}, url => {
-				if (!url) {
-					sendResponse('failed');
-					return;
-				}
-				const params = new URLSearchParams(url.match(/^(.*?)(\?.*?)$/)[2]);
-				const code = params.get('code');
-				_obtainTraktTokens('authorization_code', code);
-			});
-		}  else if (_isDateExpired(traktTokenExpirationDate)) {
-			_obtainTraktTokens('refresh_token', traktRefreshToken);
-		}
-	});
+	return _readTraktAuth()
+		.then(_refreshTraktTokenIfNeeded)
+		.catch(() => {
+			return _getTraktAuthCode()
+				.then(_getTraktAuthTokens)
+				.then(_storeTraktAuth)
+				.catch(error => {
+					sendResponse({
+						status: 'fail',
+						message: error.message,
+					});
+				});
+		});
 }
 
 function unauthorizeTrakt() {
-	//todo: implement
+	_readTraktAuth()
+		.then(_revokeToken.bind(undefined, 'refreshToken'))
+		.then(_revokeToken.bind(undefined, 'accessToken'))
+		.then(_cleanTraktAuth)
+		.catch(console.error);
 }
 
-function _obtainTraktTokens(grantType, credential) {
-	fetch('https://api.trakt.tv/oauth/token', {
+function _revokeToken(tokenName, authObj) {
+	if (!authObj.accessToken) {
+		reject(new Error('Revoke token failed, access token needed is absent'));
+	}
+	const body = new FormData();
+	body.set('token', authObj[tokenName]);
+	return fetch('https://api.trakt.tv/oauth/revoke', {
+		headers: new Headers({
+			'Content-Type': 'application/x-www-form-urlencoded',
+			'Authorization': `Bearer ${authObj.accessToken}`,
+			'trakt-api-version': '2',
+			'trakt-api-key': TRAKT_API_CONFIG.CLIENT_ID,
+		}),
+		method: 'POST',
+		body,
+	}).then(_parseJSONResponse)
+	.then(() => {
+		chrome.identity.removeCachedAuthToken({
+			token: authObj[tokenName],
+		});
+	})
+	.then(json => {
+		return authObj;
+	});
+}
+
+function _getTraktAuthCode() {
+	return new Promise((resolve, reject) => {
+		chrome.identity.launchWebAuthFlow({
+			url: TRAKT_API_CONFIG.authorizeUrl,
+			'interactive': true,
+		}, url => {
+			if (chrome.runtime.lastError) {
+				return reject(chrome.runtime.lastError);
+			}
+			if (!url) {
+				return reject(new Error('Trakt authorization failed'));
+			}
+			const params = new URLSearchParams(url.match(/^(.*?)(\?.*?)$/)[2]);
+			const code = params.get('code');
+			const error = params.get('error');
+			if (error && !code) {
+				return reject(new Error('Trakt authorization rejected'));
+			}
+			return resolve({
+				grantType: 'authorization_code',
+				credential: code,
+			});
+		});
+		
+	});
+}
+
+function _showResults(query, json) {
+	if (!json.results) {
+		throw new Error('TMDB search gave results in unexpected format');
+	}
+	_sendActionToCurrentTab('showIframe', {
+		type: 'results',
+		payload: {
+			query,
+			items: json.results,
+		},
+	});
+}
+
+function _showItemAdded(json) {
+
+			// todo: validate what's added
+			//json.added vs json.not_found
+			// _sendActionToCurrentTab('showIframe', {
+			// 	type: 'showAdded',
+			// 	payload: ,
+			// });
+	if (!json.results) {
+		throw new Error('TMDB search gave results in unexpected format');
+	}
+	_sendActionToCurrentTab('showIframe', {
+		type: 'results',
+		payload: {
+			query,
+			items: json.results,
+		},
+	});
+}
+
+function _showError( error) {
+	_sendActionToCurrentTab('showIframe', {
+		type: 'error',
+		payload: error.message,
+	});
+}
+
+function _getTraktAuthTokens(authObj) {
+	const {grantType, credential} = authObj;
+	const fetchParams = {
 		method: 'POST',
 		headers: new Headers({
 			'Content-Type': 'application/json',
@@ -180,18 +315,50 @@ function _obtainTraktTokens(grantType, credential) {
 			'redirect_uri': TRAKT_API_CONFIG.REDIRECT_URL,
 			'grant_type': grantType,
 		}),
-	}).then(response => {
-		return response.json()
-	}).then(json => {
-		const storageData = {
-			accessToken: json.access_token,
-			tokenExpirationDate: moment().add(json.expires_in, 's').valueOf()
-		};
-		if (grantType === 'authorization_code') {
-			storageData['refreshToken'] = json.refresh_token;
-		}
-		chrome.storage.sync.set(storageData);
+	};
+	return fetch('https://api.trakt.tv/oauth/token', fetchParams)
+		.then(_parseJSONResponse)
+		.then(json => {
+			const authObj = {
+				accessToken: json.access_token,
+				refreshToken: json.refresh_token,
+				tokenExpirationDate: moment().add(json.expires_in, 's').valueOf(),
+			};
+			return authObj;
+		});
+}
+
+function _storeTraktAuth(authObj) {
+	return new Promise((resolve, reject) => {
+		chrome.storage.sync.set(authObj, () => {
+			if (chrome.runtime.lastError) {
+				return reject(new Error(chrome.runtime.lastError.message));
+			}
+			return resolve();
+		});
 	});
+}
+
+function _cleanTraktAuth() {
+	return new Promise((resolve, reject) => {
+		Object.assign(traktCredentials, TRAKT_CREDENTIALS_EMPTY);
+		chrome.storage.sync.set(traktCredentials, () => {
+			if (chrome.runtime.lastError) {
+				return reject(new Error(chrome.runtime.lastError.message));
+			}
+			return resolve();
+		});
+	});
+}
+
+function _parseJSONResponse(response) {
+	if (response.ok) {
+		return response.json();
+	}
+	if (response.status === 401) {
+		throw new Error(`Unauthorized request to ${response.url}`);
+	}
+	throw new Error(`Network error: ${response.statusText}`);
 }
 
 function _isDateExpired(ms) {

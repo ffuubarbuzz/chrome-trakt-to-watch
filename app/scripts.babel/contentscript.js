@@ -22,16 +22,22 @@ const actions = {
 };
 
 chrome.runtime.onMessage.addListener(request => {
+	console.log('contentscript recieved request: ', request)
 	actions[request.action](request.payload);
 });
 
 function showIframe(payload) {
+	console.log('showIframe request recieved: ', payload)
 	Object.assign(iframeDataCached, payload);
 	if (!iframe) {
 		iframe = _createIframe();
 	}
 	if (!isIframeAttached) {
 		_attachIframe();
+		document.addEventListener('keydown', event => {
+			event.key === 'Escape' && _unattachIframe();
+		}, {once: true});
+		document.addEventListener('click', _unattachIframe, {once: true});
 	} else {
 		iframe.contentWindow.postMessage(payload, '*');
 	}
