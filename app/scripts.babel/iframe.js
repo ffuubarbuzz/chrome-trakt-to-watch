@@ -2,7 +2,7 @@
 
 import Vue from 'vue';
 import Iframe from './vue/iframe.vue';
-import moment from '../bower_components/moment/moment.js';
+import moment from 'moment';
 
 const messageHandlers = {
 	error: showError,
