@@ -2,7 +2,7 @@
 	<li class="results__item result "
 		:class="{
 			[`result_type_${item.media_type}`]: item.media_type,
-			'result_no-poster': item.poster_path,
+			'result_no-poster': !item.poster_path,
 			'result_loading': item.isLoading,
 		}"
 		@click="select()"
