@@ -1,6 +1,6 @@
 <template>
 	<div class="detailed "
-	    :class="[`detailed_type_${item.media_type}`, item.poster_path ? '' : 'detailed_no-poster']"
+	     :class="[`detailed_type_${item.media_type}`, item.poster_path ? '' : 'detailed_no-poster']"
 	>
 		<button class="detailed__back"
 		        @click="back()">🔙</button>
