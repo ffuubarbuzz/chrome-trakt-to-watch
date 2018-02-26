@@ -2,66 +2,21 @@
 
 import Vue from 'vue';
 import Vuex from 'vuex';
+import VueRouter from 'vue-router';
 import Iframe from './vue/iframe.vue';
 import moment from 'moment';
+import router from './iframe/router.js';
+import storeConfig from './iframe/store-config.js';
+
+router.beforeEach((to, from, next) => {
+	console.log(to, from);
+	next();
+})
 
 Vue.use(Vuex);
+Vue.use(VueRouter);
 
-const initialState = {
-	items: {},
-	itemsOrder: [],
-	selectedItem: null,
-	errors: [],
-	query: '',
-};
-
-const store = new Vuex.Store({
-	state: Object.assign({}, initialState),
-	mutations: {
-		reset (state) {
-			for (let prop in state) {
-				state[prop] = initialState[prop];
-			}
-		},
-		setItems (state, items) {
-			state.items = items;
-		},
-		setItemsOrder (state, itemsOrder) {
-			state.itemsOrder = itemsOrder;
-		},
-		setQuery (state, query) {
-			state.query = query;
-		},
-		cleanErrors (state) {
-			state.errors = [];
-		},
-		addError (state, message) {
-			state.errors.push(message);
-		},
-		removeError (state, index) {
-			Vue.delete(state.errors, index);
-		},
-		setSelectedItem (state, itemId) {
-			state.selectedItem = itemId;
-		},
-		setItemLoading (state, itemId) {
-			state.items[itemId].isLoading = true;
-		},
-		setItemNotLoading (state, itemId) {
-			state.items[itemId].isLoading = false;
-		},
-	},
-	getters: {
-		// isAuthorized (state) {
-		// 	return state.traktAuth.accessToken && state.traktAuth.refreshToken;
-		// },
-	},
-	actions: {
-		selectItem ({commit}, itemId) {
-			commit('setSelectedItem', itemId);
-		},
-	}
-});
+const store = new Vuex.Store(storeConfig);
 
 const messageHandlers = {
 	error: showError,
@@ -89,6 +44,7 @@ const app = new Vue({
 	el: '#app',
 	render: c => c(Iframe),
 	store,
+	router,
 	updated: _setIframeHeight,
 });
 
@@ -124,10 +80,12 @@ function showResults(results) {
 		return memo;
 	}, {}));
 	store.commit('setQuery', results.query);
+	app.$router.push(`/search/${results.query}`);
 }
 
 function showLoading() {
 	store.commit('reset');
+	app.$router.push('/');
 }
 
 function _sendActionToCurrentTab(action, payload) {

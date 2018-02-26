@@ -282,14 +282,14 @@ function _showItemAdded(json) {
 			// 	type: 'showAdded',
 			// 	payload: ,
 			// });
-	if (!json.results) {
-		throw new Error('TMDB search gave results in unexpected format');
-	}
+	// if (!json.results) {
+	// 	throw new Error('TMDB search gave results in unexpected format');
+	// }
 	_sendActionToCurrentTab('showIframe', {
 		type: 'results',
 		payload: {
-			query,
-			items: json.results,
+			query: 'foo',
+			// items: json.results,
 		},
 	});
 }

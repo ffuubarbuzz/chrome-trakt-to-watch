@@ -1,24 +1,25 @@
 <template>
-	<li class="results__item result "
+	<li class="results__item result"
 		:class="{
 			[`result_type_${item.media_type}`]: item.media_type,
 			'result_no-poster': !item.poster_path,
 			'result_loading': item.isLoading,
 		}"
-		@click="select()"
 	>
-		<img class="result__image"
-			width="171"
-			:alt="nameOrTitle"
-			:srcset="`https://image.tmdb.org/t/p/w342${item.poster_path} 1x,
-			          https://image.tmdb.org/t/p/w342${item.poster_path} 2x`"
-			v-if="item.poster_path"
-		>
-		<div class="result__overlay">
-			<p class="result__title">{{nameOrTitle}}</p>
-			<p class="result__year">{{date | formatDate('YYYY') }}</p>
-			<button class="result__action" @click.stop="addToWatchlist()">👁+</button>
-		</div>
+		<router-link :to="`/item/${item.id}`">
+			<img class="result__image"
+				width="171"
+				:alt="nameOrTitle"
+				:srcset="`https://image.tmdb.org/t/p/w342${item.poster_path} 1x,
+				          https://image.tmdb.org/t/p/w342${item.poster_path} 2x`"
+				v-if="item.poster_path"
+			>
+			<div class="result__overlay">
+				<p class="result__title">{{nameOrTitle}}</p>
+				<p class="result__year">{{date | formatDate('YYYY') }}</p>
+				<router-link :to="'/search/bar'" class="result__action" @click.stop="addToWatchlist()">👁+</router-link>
+			</div>
+		</router-link>
 	</li>
 </template>
 
@@ -41,9 +42,6 @@
 						this.$store.commit('addError', response.message);
 					}
 				});
-			},
-			select () {
-				this.$store.dispatch('selectItem', this.item.id);
 			}
 		},
 		computed: {

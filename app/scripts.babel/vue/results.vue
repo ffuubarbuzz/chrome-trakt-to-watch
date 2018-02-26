@@ -2,7 +2,7 @@
 	<div class="results">
 		<div class="results__summary">
 			<div class="results__term">
-				Search results for <strong class="results__query">{{query}}</strong>
+				Search results for <strong class="results__query">{{$route.params.query}}</strong>
 			</div>
 			<div class="results__number">{{itemsOrder.length}}</div>
 		</div>

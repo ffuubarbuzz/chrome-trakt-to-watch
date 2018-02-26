@@ -4,7 +4,8 @@ import gulpLoadPlugins from 'gulp-load-plugins';
 import del from 'del';
 import runSequence from 'run-sequence';
 import webpackStream from 'webpack-stream';
-import webpack from 'webpack'
+import webpack from 'webpack';
+import {spawn} from 'child_process';
 
 const $ = gulpLoadPlugins();
 
@@ -91,7 +92,11 @@ gulp.task('babel', () => {
 
 gulp.task('clean', del.bind(null, ['dist']));
 
-gulp.task('watch', ['lint', 'babel'], () => {
+gulp.task('vue', () => {
+	spawn('./node_modules/.bin/vue-devtools');
+})
+
+gulp.task('watch', ['lint', 'babel', 'vue'], () => {
   $.livereload.listen();
 
   gulp.watch([

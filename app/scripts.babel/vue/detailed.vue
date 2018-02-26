@@ -3,7 +3,7 @@
 	     :class="[`detailed_type_${item.media_type}`, item.poster_path ? '' : 'detailed_no-poster']"
 	>
 		<button class="detailed__back"
-		        @click="back()">🔙</button>
+		        @click="$router.back()">🔙</button>
 		<img class="detailed__image"
 		     width="171"
 		     :alt="nameOrTitle"
@@ -20,8 +20,8 @@
 </template>
 
 <script>
+	import { mapState } from 'vuex';
 	export default {
-		props: ['item'],
 		methods: {
 			addToWatchlist () {
 				// todo: move to separate component
@@ -39,7 +39,7 @@
 				});
 			},
 			back () {
-				this.$store.dispatch('selectItem', null);
+				this.$router.back();
 			}
 		},
 		computed: {
@@ -48,6 +48,9 @@
 			},
 			date () {
 				return this.item.release_date || this.item.first_air_date;
+			},
+			item() {
+				return this.$store.state.items[this.$route.params.id];
 			}
 		}
 	};

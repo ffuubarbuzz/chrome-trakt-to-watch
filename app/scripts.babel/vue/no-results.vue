@@ -1,15 +1,13 @@
 <template>
 	<div class="no-results">
 		<img class="no-results__image" src="/images/no-results.svg" alt="" width="181">
-		<p class="no-results__text">Nothing found for <em class="no-results__query">“{{ query }}”</em></p>
+		<p class="no-results__text">Nothing found for <em class="no-results__query">“{{ $route.params.query }}”</em></p>
 		<button @click="close()" class="no-results__close">Close</button>
 	</div>
 </template>
 
 <script>
-	import { mapState } from 'vuex';
 	export default {
-		computed: mapState(['query']),
 		methods: {
 			close () {
 				this._sendActionToCurrentTab('closeIframe');

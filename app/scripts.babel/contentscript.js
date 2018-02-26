@@ -27,7 +27,6 @@ chrome.runtime.onMessage.addListener(request => {
 });
 
 function showIframe(payload) {
-	console.log('showIframe request recieved: ', payload)
 	Object.assign(iframeDataCached, payload);
 	if (!iframe) {
 		iframe = _createIframe();
