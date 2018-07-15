@@ -8,11 +8,6 @@ import moment from 'moment';
 import router from './iframe/router.js';
 import storeConfig from './iframe/store-config.js';
 
-router.beforeEach((to, from, next) => {
-	console.log(to, from);
-	next();
-})
-
 Vue.use(Vuex);
 Vue.use(VueRouter);
 

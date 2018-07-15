@@ -169,13 +169,21 @@ function _sendToTrakt(item) {
 
 function addToWatchlist(item, sendResponse, isRetry) {
 	return _sendToTrakt(item)
-		.then(_showItemAdded)
-		// todo ↑ show confirmation instead
+		.then(json => {
+			// todo: validate what's added
+			//json.added vs json.not_found
+			sendResponse({
+				success: true,
+			});
+		})
 		.catch(error => {
 			if (isRetry) {
+				sendResponse({
+					success: false,
+					error,
+				});
 				return;
 			}
-			_showError(error);
 			authorizeTrakt(undefined, sendResponse)
 				.then(() => {
 					addToWatchlist(item, sendResponse, true);
@@ -274,24 +282,17 @@ function _showResults(query, json) {
 	});
 }
 
-function _showItemAdded(json) {
+function _showItemAdded(json, item) {
 
-			// todo: validate what's added
-			//json.added vs json.not_found
-			// _sendActionToCurrentTab('showIframe', {
-			// 	type: 'showAdded',
-			// 	payload: ,
-			// });
+	// todo: validate what's added, probably with another method before this one
+	//json.added vs json.not_found
+	// _sendActionToCurrentTab('showIframe', {
+	// 	type: 'added',
+	// 	payload: item.id,
+	// });
 	// if (!json.results) {
 	// 	throw new Error('TMDB search gave results in unexpected format');
 	// }
-	_sendActionToCurrentTab('showIframe', {
-		type: 'results',
-		payload: {
-			query: 'foo',
-			// items: json.results,
-		},
-	});
 }
 
 function _showError( error) {

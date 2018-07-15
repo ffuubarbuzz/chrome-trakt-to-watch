@@ -1,5 +1,5 @@
 <template>
-	<div v-else class="loading">
+	<div class="loading">
 		<img src="/images/throbber_medium.svg" width="28" height="28" alt="">
 	</div>
 </template>

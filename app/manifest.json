@@ -12,8 +12,8 @@
     "scripts": [
       "scripts/chromereload.js",
       "scripts/background.js"
-    ]
-    // todo: "persistent": false
+    ],
+    "persistent": false
   },
   "permissions": [
     "tabs",

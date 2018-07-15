@@ -1,3 +1,5 @@
+import router from './router.js';
+
 const initialState = {
 	items: {},
 	itemsOrder: [],
@@ -47,5 +49,23 @@ export default {
 		// selectItem ({commit}, itemId) {
 		// 	commit('setSelectedItem', itemId);
 		// },
+		addToWatchlist ({commit}, item) {
+			commit('setItemLoading', item.id);
+			chrome.runtime.sendMessage({
+				target: 'background',
+				type: 'addToWatchlist',
+				payload: {
+					id: item.id,
+					type: item.media_type,
+				},
+			}, response => {
+				commit('setItemNotLoading', item.id);
+				if (response.success) {
+					router.push(`/item_added/${item.id}`);
+				} else {
+					commit('addError', response.message);
+				}
+			});
+		},
 	}
 };

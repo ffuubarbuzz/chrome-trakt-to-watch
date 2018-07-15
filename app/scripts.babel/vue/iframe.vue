@@ -1,7 +1,7 @@
 <template>
 	<main class="main">
 		<HeadBar class="main__head" />
-		<Errors />
+		<Errors v-if="errors.length" />
 		<div class="main__content">
 			<router-view />
 		</div>
@@ -16,6 +16,11 @@
 		components: {
 			HeadBar,
 			Errors,
+		},
+		computed: {
+			errors () {
+				return this.$store.state.errors;
+			},
 		},
 	};
 </script>
