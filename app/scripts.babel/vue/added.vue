@@ -11,7 +11,9 @@
 		     v-if="item.poster_path"
 		>
 		added!
-		undo?
+		<!-- todo: undo button -->
+		<!-- todo: link to watchlist -->
+		<button @click="close()" class="added__close"><trans-late tag="close"/></button>
 	</div>
 </template>
 
@@ -19,6 +21,9 @@
 	import { mapState } from 'vuex';
 	export default {
 		methods: {
+			close () {
+				this._sendActionToCurrentTab('closeIframe');
+			},
 		},
 		computed: {
 			nameOrTitle () {
@@ -35,5 +40,15 @@
 </script>
 
 <style>
-	.added {}
+	.added {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+	.added__back {
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
 </style>
