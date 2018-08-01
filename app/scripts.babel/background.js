@@ -78,7 +78,7 @@ function _readTraktAuth() {
 			'tokenExpirationDate',
 		], result => {
 			if (chrome.runtime.lastError) {
-				return reject(new Error(chrome.runtime.lastError.message));
+				return reject(chrome.runtime.lastError.message);
 			}
 			const {
 				accessToken,
@@ -339,7 +339,7 @@ function _storeTraktAuth(authObj) {
 	return new Promise((resolve, reject) => {
 		chrome.storage.sync.set(authObj, () => {
 			if (chrome.runtime.lastError) {
-				return reject(new Error(chrome.runtime.lastError.message));
+				return reject(chrome.runtime.lastError.message);
 			}
 			return resolve();
 		});
@@ -351,7 +351,7 @@ function _cleanTraktAuth() {
 		Object.assign(traktCredentials, TRAKT_CREDENTIALS_EMPTY);
 		chrome.storage.sync.set(traktCredentials, () => {
 			if (chrome.runtime.lastError) {
-				return reject(new Error(chrome.runtime.lastError.message));
+				return reject(chrome.runtime.lastError.message);
 			}
 			return resolve();
 		});
