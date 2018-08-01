@@ -4,6 +4,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import Iframe from './vue/iframe.vue';
+import translationComponent from './vue/translation.vue';
 import moment from 'moment';
 import router from './iframe/router.js';
 import storeConfig from './iframe/store-config.js';
@@ -35,6 +36,8 @@ Vue.mixin({
 	},
 });
 
+Vue.component('trans-late', translationComponent);
+
 const app = new Vue({
 	el: '#app',
 	render: c => c(Iframe),
@@ -61,8 +64,8 @@ window.addEventListener('DOMContentLoaded', event => {
 	_sendActionToCurrentTab('requestData');
 });
 
-function showError(message) {
-	store.commit('addError', message);
+function showError(error) {
+	store.commit('addError', error);
 }
 
 function showResults(results) {

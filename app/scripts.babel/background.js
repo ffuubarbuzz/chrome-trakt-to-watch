@@ -1,6 +1,7 @@
 'use strict';
 
 import moment from 'moment';
+import TranslatedError from './translated_error.js';
 
 const TMDB_API_KEY = '1423559168fef1697183d16836a6019b';
 const TRAKT_API_CONFIG = Object.freeze({
@@ -35,6 +36,7 @@ const messageHandlers = {
 	addToWatchlist,
 	authorizeTrakt,
 	unauthorizeTrakt,
+	getTranslation,
 };
 
 chrome.runtime.onInstalled.addListener(details => {
@@ -162,7 +164,7 @@ function _sendToTrakt(item) {
 		.catch(error => {
 			return _cleanTraktAuth()
 				.then(() => {
-					throw new Error('Can\'t add item to watchlist: Trakt not authorized');
+					throw new TranslatedError('errorTraktNotAuthorized');
 				});
 		});
 }
@@ -202,7 +204,7 @@ function authorizeTrakt(payload, sendResponse) {
 				.catch(error => {
 					sendResponse({
 						status: 'fail',
-						message: error.message,
+						error,
 					});
 				});
 		});
@@ -214,6 +216,10 @@ function unauthorizeTrakt() {
 		.then(_revokeToken.bind(undefined, 'accessToken'))
 		.then(_cleanTraktAuth)
 		.catch(console.error);
+}
+
+function getTranslation(payload, sendResponse) {
+	sendResponse(chrome.i18n.getMessage(payload.tag, payload.substitutions));
 }
 
 function _revokeToken(tokenName, authObj) {
@@ -252,13 +258,13 @@ function _getTraktAuthCode() {
 				return reject(chrome.runtime.lastError);
 			}
 			if (!url) {
-				return reject(new Error('Trakt authorization failed'));
+				return reject(new TranslatedError('errorTraktAuthFailed'));
 			}
 			const params = new URLSearchParams(url.match(/^(.*?)(\?.*?)$/)[2]);
 			const code = params.get('code');
 			const error = params.get('error');
 			if (error && !code) {
-				return reject(new Error('Trakt authorization rejected'));
+				return reject(new TranslatedError('errorTraktAuthRejected'));
 			}
 			return resolve({
 				grantType: 'authorization_code',
@@ -298,7 +304,7 @@ function _showItemAdded(json, item) {
 function _showError( error) {
 	_sendActionToCurrentTab('showIframe', {
 		type: 'error',
-		payload: error.message,
+		payload: error,
 	});
 }
 

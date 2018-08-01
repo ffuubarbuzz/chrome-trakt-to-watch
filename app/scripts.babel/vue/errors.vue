@@ -1,8 +1,12 @@
 <template>
 	<ul class="errors" v-if="errors.length">
 		<li class="errors__item error"
-		    v-for="(message, index) in errors">
-			{{ message }}
+		    v-for="(error, index) in errors">
+			<trans-late v-if="error.name === 'TranslatedError'"
+			            :tag="error.message"
+			            :substitutions="error.substitutions"
+			/>
+		    <template v-else>{{error.message}}</template>
 			<div @click="removeError(index)" class="error__close">✕</div>
 		</li>
 	</ul>

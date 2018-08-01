@@ -17,7 +17,7 @@
 		<div class="result__overlay">
 			<p class="result__title">{{nameOrTitle}}</p>
 			<p class="result__year">{{date | formatDate('YYYY') }}</p>
-			<button class="result__action" @click.stop="addToWatchlist(item)">👁+</button>
+			<button class="result__action" @click.stop="addToWatchlist(item)"><trans-late tag="addToTraktWatchlistShort"/></button>
 		</div>
 	</li>
 </template>
@@ -145,5 +145,11 @@
 		padding: 5px;
 		border-radius: 2px;
 		margin-top: auto;
+		color: #fff;
+		cursor: pointer;
+		transition: transform ease-in-out .2s;
+	}
+	.result__action:hover {
+		transform: scale(1.2);
 	}
 </style>

@@ -1,7 +1,7 @@
 <template>
 	<ul class="messages">
 		<li v-for="(message, index) in messages" class="messages__item message">
-			<div class="message__text">{{message}}</div>
+			<div class="message__text"><trans-late :tag="message" />></div>
 			<div @click="closeMessage(index)" class="message__close">✕</div>
 		</li>
 	</ul>

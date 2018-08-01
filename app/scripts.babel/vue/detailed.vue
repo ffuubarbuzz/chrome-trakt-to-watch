@@ -12,9 +12,9 @@
 		>
 		<div class="detailed__overlay">
 			<div class="detailed__title">{{nameOrTitle}}</div>
-			<div class="detailed__meta">{{type}}, {{date | formatDate('YYYY') }}</div>
+			<div class="detailed__meta"><trans-late :tag="this.type" />, {{date | formatDate('YYYY') }}</div>
 			<div class="detailed__overview">{{item.overview}}</div>
-			<button class="detailed__action" @click="addToWatchlist(item)">👁+</button>
+			<button class="detailed__action" @click="addToWatchlist(item)"><trans-late tag="addToTraktWatchlist" /></button>
 		</div>
 	</div>
 </template>
@@ -38,9 +38,9 @@
 				return this.$store.state.items[this.$route.params.id];
 			},
 			type () {
-				return this.item.media_type;
+				return `mediaType_${this.item.media_type}`;
 			}
-		}
+		},
 	};
 </script>
 

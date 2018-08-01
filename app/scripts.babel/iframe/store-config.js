@@ -1,4 +1,5 @@
 import router from './router.js';
+import Vue from 'vue';
 
 const initialState = {
 	items: {},
@@ -27,8 +28,8 @@ export default {
 		cleanErrors (state) {
 			state.errors = [];
 		},
-		addError (state, message) {
-			state.errors.push(message);
+		addError (state, error) {
+			state.errors.push(error);
 		},
 		removeError (state, index) {
 			Vue.delete(state.errors, index);
@@ -41,14 +42,8 @@ export default {
 		},
 	},
 	getters: {
-		// isAuthorized (state) {
-		// 	return state.traktAuth.accessToken && state.traktAuth.refreshToken;
-		// },
 	},
 	actions: {
-		// selectItem ({commit}, itemId) {
-		// 	commit('setSelectedItem', itemId);
-		// },
 		addToWatchlist ({commit}, item) {
 			commit('setItemLoading', item.id);
 			chrome.runtime.sendMessage({
@@ -63,7 +58,7 @@ export default {
 				if (response.success) {
 					router.push(`/item_added/${item.id}`);
 				} else {
-					commit('addError', response.message);
+					commit('addError', response.error);
 				}
 			});
 		},

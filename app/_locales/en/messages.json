@@ -6,5 +6,80 @@
   "appDescription": {
     "message": "My Chrome Extension",
     "description": "The description of the application"
+  },
+  "mediaType_movie": {
+    "message": "movie",
+    "description": "Whatever Trakt calls 'movie'"
+  },
+  "mediaType_tv": {
+    "message": "TV show",
+    "description": "Whatever Trakt calls 'tv'"
+  },
+  "addToTraktWatchlist": {
+    "message": "Add to Trakt watchlist",
+    "description": "CTA in detailed movie/show view"
+  },
+  "addToTraktWatchlistShort": {
+    "message": "to watch",
+    "description": "CTA in movie/show preview within search results"
+  },
+  "linkTraktAccount": {
+    "message": "Link Trakt.tv account",
+    "description": "CTA in options"
+  },
+  "unlinkTraktAccount": {
+    "message": "Unlink Trakt.TV account",
+    "description": "CTA in options"
+  },
+  "noResults": {
+    "message": "Nothing found for $QUERY$",
+    "description": "Message for no search results view",
+    "placeholders": {
+      "query": {
+        "content": "$1"
+      }
+    }
+  },
+  "close": {
+    "message": "Close",
+    "description": "Close CTA in no search results view"
+  },
+  "errorTraktNotAuthorized" : {
+    "message": "Can't add item to watchlist: Trakt not authorized",
+    "description": ""
+  },
+  "errorTraktRevokeFailedAccessTokenMissing" : {
+    "message": "Revoke token failed, access token needed is absent",
+    "description": ""
+  },
+  "errorTraktAuthFailed" : {
+    "message": "Trakt authorization failed",
+    "description": ""
+  },
+  "errorTraktAuthRejected" : {
+    "message": "Trakt authorization rejected",
+    "description": ""
+  },
+  "errorTMDBResponseFormat" : {
+    "message": "TMDB search gave results in unexpected format",
+    "description": ""
+  },
+  "errorUnauthorizedRequest" : {
+    "message": "Unauthorized request to $URL$",
+    "description": "",
+    "placeholders": {
+      "url": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorNetwork" : {
+    "message": "Network error: $STATUS$",
+    "description": "",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
   }
 }

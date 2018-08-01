@@ -1,8 +1,10 @@
 <template>
 	<div class="no-results">
 		<img class="no-results__image" src="/images/no-results.svg" alt="" width="181">
-		<p class="no-results__text">Nothing found for <em class="no-results__query">“{{ $route.params.query }}”</em></p>
-		<button @click="close()" class="no-results__close">Close</button>
+		<p class="no-results__text">
+			<trans-late tag="noResults" :substitutions="[`<em class='no-results__query'>“${ $route.params.query }”</em>`]" />
+		</p>
+		<button @click="close()" class="no-results__close"><trans-late tag="close"/></button>
 	</div>
 </template>
 

@@ -11,6 +11,7 @@ const iframeStyles = `
 	height: 495px;
 	border: none;
 	z-index: 2147483647;
+	max-height: 100vh;
 `;
 
 

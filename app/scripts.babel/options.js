@@ -2,8 +2,11 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import Options from './vue/options.vue';
+import translationComponent from './vue/translation.vue';
 
 Vue.use(Vuex);
+
+Vue.component('trans-late', translationComponent);
 
 const messageHandlers = {
 	showMessage,
@@ -60,7 +63,7 @@ const store = new Vuex.Store({
 				target: 'background',
 				type: 'authorizeTrakt',
 			}, response => {
-				if (response === 'fail') {
+				if (response.status === 'fail') {
 					_authFailed();
 				}
 				commit('setTraktAuthBusy', false);

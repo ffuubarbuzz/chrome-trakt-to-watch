@@ -34,6 +34,8 @@
 		display: flex;
 		flex-direction: column;
 		align-items: stretch;
+		cursor: default;
+		user-select: none;
 	}
 	.main__head {
 		flex: 0 0 auto;
