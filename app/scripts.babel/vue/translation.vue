@@ -11,7 +11,10 @@
 			}
 		},
 		props: {
-			tag: String,
+			tag: {
+				type: String,
+				required: true,
+			},
 			substitutions: Array,
 		},
 		methods: {
