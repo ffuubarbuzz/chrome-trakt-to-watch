@@ -47,7 +47,6 @@
 <style>
 	.detailed {
 		position: relative;
-		overflow: auto;
 		height: 100%;
 	}
 
@@ -86,7 +85,7 @@
 		flex-shrink: 1;
 		min-height: 0;
 		margin: 1em 0;
-		overflow: hidden;
+		overflow: auto;
 	}
 
 	.detailed__action {
@@ -107,7 +106,7 @@
 		bottom: 0;
 		left: 0;
 		max-height: 80%;
-		padding: .2em 1em;
+		padding: .2em 1em 1em;
 		background: rgba(0, 0, 0, .4);
 	}
 
