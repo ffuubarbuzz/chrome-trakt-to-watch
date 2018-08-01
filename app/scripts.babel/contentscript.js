@@ -23,7 +23,6 @@ const actions = {
 };
 
 chrome.runtime.onMessage.addListener(request => {
-	console.log('contentscript recieved request: ', request)
 	actions[request.action](request.payload);
 });
 

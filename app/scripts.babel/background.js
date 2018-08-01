@@ -40,7 +40,6 @@ const messageHandlers = {
 };
 
 chrome.runtime.onInstalled.addListener(details => {
-	console.log('previousVersion', details.previousVersion);
 	_readTraktAuth()
 		.catch(console.log);
 });
