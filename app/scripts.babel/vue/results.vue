@@ -1,11 +1,11 @@
 <template>
 	<div class="results">
-		<div class="results__summary">
+		<!-- <div class="results__summary">
 			<div class="results__term">
-				Search results for <strong class="results__query">{{$route.params.query}}</strong>
+				<trans-late tag="searchResults" :substitutions="[`<strong class='results__query'>${$route.params.query}</strong>`]" />
 			</div>
 			<div class="results__number">{{itemsOrder.length}}</div>
-		</div>
+		</div> -->
 		<ul class="results__grid">
 			<Result v-for="item in itemsOrder" :item="items[item]" :key="item.id" />
 		</ul>

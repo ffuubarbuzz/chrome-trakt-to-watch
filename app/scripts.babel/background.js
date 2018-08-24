@@ -1,7 +1,7 @@
 'use strict';
 
 import moment from 'moment';
-import TranslatedError from './translated_error.js';
+import TranslatedError from './translated-error.js';
 
 const TMDB_API_KEY = '1423559168fef1697183d16836a6019b';
 const TRAKT_API_CONFIG = Object.freeze({
@@ -37,6 +37,7 @@ const messageHandlers = {
 	authorizeTrakt,
 	unauthorizeTrakt,
 	getTranslation,
+	search,
 };
 
 chrome.runtime.onInstalled.addListener(details => {
@@ -219,6 +220,10 @@ function unauthorizeTrakt() {
 
 function getTranslation(payload, sendResponse) {
 	sendResponse(chrome.i18n.getMessage(payload.tag, payload.substitutions));
+}
+
+function search(query) {
+	_multiSearch(query);
 }
 
 function _revokeToken(tokenName, authObj) {

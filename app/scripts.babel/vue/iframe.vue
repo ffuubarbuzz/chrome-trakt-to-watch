@@ -1,6 +1,7 @@
 <template>
 	<main class="main">
 		<HeadBar class="main__head" />
+		<Searchbar />
 		<Errors v-if="errors.length" />
 		<div class="main__content">
 			<router-view />
@@ -11,10 +12,12 @@
 <script>
 	import HeadBar from './head.vue';
 	import Errors from './errors.vue';
+	import Searchbar from './searchbar.vue';
 	import { mapState } from 'vuex';
 	export default {
 		components: {
 			HeadBar,
+			Searchbar,
 			Errors,
 		},
 		computed: {

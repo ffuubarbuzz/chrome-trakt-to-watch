@@ -42,8 +42,16 @@ function showIframe(payload) {
 	}
 }
 
-function requestData() {
-	iframe.contentWindow.postMessage(iframeDataCached, '*');
+function requestData(query) {
+	if (query) {
+		chrome.runtime.sendMessage({
+			type: 'search',
+			target: 'background',
+			payload: query,
+		});
+	} else {
+		iframe.contentWindow.postMessage(iframeDataCached, '*');
+	}
 }
 
 function setIframeHeight(height) {

@@ -81,5 +81,14 @@
         "content": "$1"
       }
     }
+  },
+  "searchResults": {
+    "message": "Search results for $QUERY$",
+    "description": "Message for search results",
+    "placeholders": {
+      "query": {
+        "content": "$1"
+      }
+    }
   }
 }
