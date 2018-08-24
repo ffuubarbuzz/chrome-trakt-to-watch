@@ -91,6 +91,7 @@
 	.detailed__action {
 		border: none;
 		background: #ed1d24;
+		color: #fff;
 		padding: 5px;
 		border-radius: 2px;
 		margin-top: auto;
