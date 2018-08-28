@@ -15,4 +15,4 @@ build_&_deploy_app:
   only:
    - master
   script:
-   - gulp release
+   - node_modules/gulp/bin/gulp.js release

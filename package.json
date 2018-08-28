@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "babel-loader": "^7.1.2",
+    "chrome-webstore-upload": "^0.2.2",
     "css-loader": "^0.28.7",
     "moment": "^2.20.0",
     "vue": "^2.5.9",
