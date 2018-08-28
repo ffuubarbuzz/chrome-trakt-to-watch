@@ -15,4 +15,4 @@ build_&_deploy_app:
   only:
    - master
   script:
-   - node_modules/gulp/bin/gulp.js release
+   - CLIENT_ID=${CLIENT_ID} CLIENT_SECRET=${CLIENT_SECRET} REFRESH_TOKEN=${REFRESH_TOKEN} node_modules/gulp/bin/gulp.js release
