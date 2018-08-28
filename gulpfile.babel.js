@@ -158,6 +158,6 @@ gulp.task('default', ['clean'], cb => {
   runSequence('build', cb);
 });
 
-gulp.task('release', ['package'], cb => {
+gulp.task('release', cb => {
   runSequence('build', 'package', 'upload', cb);
 });
