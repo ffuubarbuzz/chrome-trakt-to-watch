@@ -7,6 +7,7 @@ import webpackStream from 'webpack-stream';
 import webpack from 'webpack';
 import {spawn} from 'child_process';
 import chromeWebstoreUpload from 'chrome-webstore-upload';
+import fs from 'fs';
 
 const $ = gulpLoadPlugins();
 
@@ -134,6 +135,10 @@ gulp.task('build', (cb) => {
 
 gulp.task('upload', () => {
   var manifest = require('./dist/manifest.json');
+  console.log('foo')
+  console.log(process.env.CLIENT_ID)
+  console.log('foo')
+
   const webStore = chromeWebstoreUpload({
     extensionId: 'lenehnfieohimgadpmnphhbgikfnoale',
     clientId: process.env.CLIENT_ID,
