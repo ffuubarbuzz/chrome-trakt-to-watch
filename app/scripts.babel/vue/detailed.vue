@@ -17,7 +17,7 @@
 			</div>
 			<div class="detailed__overview">{{item.overview}}</div>
 			<button class="detailed__action"
-				v-if="item.isInWatchlist"
+				v-if="!item.isInWatchlist"
 				@click="addToWatchlist(item)"
 			>
 				<trans-late tag="addToTraktWatchlist" />

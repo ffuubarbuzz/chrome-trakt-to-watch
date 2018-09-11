@@ -19,7 +19,7 @@
 			<p class="result__title">{{nameOrTitle}}</p>
 			<p class="result__year">{{date | formatDate('YYYY') }}</p>
 			<button class="result__action"
-				v-if="item.isInWatchlist"
+				v-if="!item.isInWatchlist"
 				@click.stop="addToWatchlist(item)"
 			>
 				<trans-late tag="addToTraktWatchlistShort"/>
