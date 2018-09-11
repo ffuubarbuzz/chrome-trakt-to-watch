@@ -1,12 +1,13 @@
 <template>
 	<ul class="errors" v-if="errors.length">
 		<li class="errors__item error"
-		    v-for="(error, index) in errors">
+			v-for="(error, index) in errors"
+		>
 			<trans-late v-if="error.name === 'TranslatedError'"
-			            :tag="error.message"
-			            :substitutions="error.substitutions"
+				:tag="error.message"
+				:substitutions="error.substitutions"
 			/>
-		    <template v-else>{{error.message}}</template>
+			<template v-else>{{error.message}}</template>
 			<div @click="removeError(index)" class="error__close">✕</div>
 		</li>
 	</ul>
@@ -33,7 +34,7 @@
 	.error {
 		background: firebrick;
 		color: #fff;
-		padding: .2em  0 .2em 1em;
+		padding: .2em 0 .2em 1em;
 		display: flex;
 		align-items: center;
 	}

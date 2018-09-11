@@ -1,20 +1,27 @@
 <template>
-	<div class="detailed "
-	     :class="[item.poster_path ? '' : 'detailed_no-poster']"
+	<div class="detailed"
+		:class="[item.poster_path ? '' : 'detailed_no-poster']"
 	>
-		<button class="detailed__back"
-		        @click="$router.back()">🔙</button>
+		<button class="detailed__back" @click="$router.back()">🔙</button>
 		<img class="detailed__image"
-		     width="171"
-		     :alt="nameOrTitle"
-		     :srcset="`https://image.tmdb.org/t/p/w342${item.poster_path} 1x, https://image.tmdb.org/t/p/w342${item.poster_path} 2x`"
-		     v-if="item.poster_path"
+			width="171"
+			:alt="nameOrTitle"
+			:srcset="`https://image.tmdb.org/t/p/w342${item.poster_path} 1x,
+			          https://image.tmdb.org/t/p/w342${item.poster_path} 2x`"
+			v-if="item.poster_path"
 		>
 		<div class="detailed__overlay">
 			<div class="detailed__title">{{nameOrTitle}}</div>
-			<div class="detailed__meta"><trans-late :tag="this.type" />, {{date | formatDate('YYYY') }}</div>
+			<div class="detailed__meta">
+				<trans-late :tag="this.type" />, {{date | formatDate('YYYY') }}
+			</div>
 			<div class="detailed__overview">{{item.overview}}</div>
-			<button class="detailed__action" @click="addToWatchlist(item)"><trans-late tag="addToTraktWatchlist" /></button>
+			<button class="detailed__action"
+				v-if="item.isInWatchlist"
+				@click="addToWatchlist(item)"
+			>
+				<trans-late tag="addToTraktWatchlist" />
+			</button>
 		</div>
 	</div>
 </template>

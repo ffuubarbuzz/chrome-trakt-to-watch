@@ -4,20 +4,26 @@
 			[`result_type_${item.media_type}`]: item.media_type,
 			'result_no-poster': !item.poster_path,
 			'result_loading': item.isLoading,
+			'result_in-watchlist': item.isInWatchlist,
 		}"
 		@click="goToDetails()"
 	>
 		<img class="result__image"
+			v-if="item.poster_path"
 			width="171"
 			:alt="nameOrTitle"
 			:srcset="`https://image.tmdb.org/t/p/w342${item.poster_path} 1x,
 			          https://image.tmdb.org/t/p/w342${item.poster_path} 2x`"
-			v-if="item.poster_path"
 		>
 		<div class="result__overlay">
 			<p class="result__title">{{nameOrTitle}}</p>
 			<p class="result__year">{{date | formatDate('YYYY') }}</p>
-			<button class="result__action" @click.stop="addToWatchlist(item)"><trans-late tag="addToTraktWatchlistShort"/></button>
+			<button class="result__action"
+				v-if="item.isInWatchlist"
+				@click.stop="addToWatchlist(item)"
+			>
+				<trans-late tag="addToTraktWatchlistShort"/>
+			</button>
 		</div>
 	</li>
 </template>
@@ -52,7 +58,8 @@
 	}
 
 	.result_type_movie::before,
-	.result_type_tv::before {
+	.result_type_tv::before,
+	.result_in-watchlist::after {
 		position: absolute;
 		top: 3px;
 		right: 3px;
@@ -73,6 +80,12 @@
 
 	.result_type_tv::before {
 		content: '🎥';
+	}
+
+	.result_in-watchlist::after {
+		content: '✅';
+		right: auto;
+		left: 3px;
 	}
 
 	.result__image {

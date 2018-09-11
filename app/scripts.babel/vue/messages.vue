@@ -35,7 +35,7 @@
 		display: flex;
 		align-items: center;
 		border-radius: 3px;
-		padding: .5em  0 .5em 1em;
+		padding: .5em 0 .5em 1em;
 	}
 	.message__text {
 		overflow: hidden;

@@ -1,19 +1,24 @@
 <template>
 	<div class="added"
-	     :class="[`added_type_${item.media_type}`, item.poster_path ? '' : 'added_no-poster']"
+		:class="[
+			`added_type_${item.media_type}`,
+			item.poster_path ? '' : 'added_no-poster'
+		]"
 	>
-		<button class="added__back"
-		        @click="$router.back()">🔙</button>
+		<button class="added__back" @click="$router.back()">🔙</button>
 		<img class="added__image"
-		     width="171"
-		     :alt="nameOrTitle"
-		     :srcset="`https://image.tmdb.org/t/p/w342${item.poster_path} 1x, https://image.tmdb.org/t/p/w342${item.poster_path} 2x`"
-		     v-if="item.poster_path"
+			width="171"
+			:alt="nameOrTitle"
+			:srcset="`https://image.tmdb.org/t/p/w342${item.poster_path} 1x,
+			          https://image.tmdb.org/t/p/w342${item.poster_path} 2x`"
+			v-if="item.poster_path"
 		>
 		added!
 		<!-- todo: undo button -->
 		<!-- todo: link to watchlist -->
-		<button @click="close()" class="added__close"><trans-late tag="close"/></button>
+		<button @click="close()" class="added__close">
+			<trans-late tag="close"/>
+		</button>
 	</div>
 </template>
 

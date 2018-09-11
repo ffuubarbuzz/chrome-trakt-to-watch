@@ -12,6 +12,16 @@ const TRAKT_API_CONFIG = Object.freeze({
 		return `https://api.trakt.tv/oauth/authorize?response_type=code&client_id=${encodeURIComponent(this.CLIENT_ID)}&redirect_uri=${encodeURIComponent(this.REDIRECT_URL)}`;
 	},
 });
+const TRAKT_API_ENDPOINTS = Object.freeze({
+	WATCHLIST: {
+		GET: 'https://api.trakt.tv/users/me/watchlist/type',
+		PUSH: 'https://api.trakt.tv/sync/watchlist',
+	},
+	OAUTH: {
+		REVOKE: 'https://api.trakt.tv/oauth/revoke',
+		TOKEN: 'https://api.trakt.tv/oauth/token',
+	},
+});
 const CONTEXT_MENU_ITEM_ID = 'trakt_watchlist_ext';
 const TRAKT_CREDENTIALS_EMPTY = Object.freeze({
 	accessToken: false,
@@ -100,6 +110,22 @@ function _readTraktAuth() {
 	});
 }
 
+function _getWatchlist() {
+	return _readTraktAuth()
+		.then(_refreshTraktTokenIfNeeded)
+		.then(authObj => {
+			return fetch(TRAKT_API_ENDPOINTS.WATCHLIST.GET, {
+				method: 'GET',
+				headers: new Headers({
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${authObj.accessToken}`,
+					'trakt-api-version': '2',
+					'trakt-api-key': TRAKT_API_CONFIG.CLIENT_ID,
+				}),
+			});
+		}).then(_parseJSONResponse);
+}
+
 function _contextMenuClick(info) {
 	if (info.menuItemId !== CONTEXT_MENU_ITEM_ID) {
 		return;
@@ -113,10 +139,19 @@ function _contextMenuClick(info) {
 function _multiSearch(query) {
 	const queryTerm = encodeURIComponent(query);
 	const queryURL = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${queryTerm}`;
-	fetch(queryURL)
+	const getWatchlistPromise = _getWatchlist();
+	const searchXHR = fetch(queryURL)
 		.then(_parseJSONResponse)
 		.then(_showResults.bind(undefined, query))
+		.then(() => {
+			getWatchlistPromise.then(_markResultsInWatchlist)
+		})
 		.catch(_showError);
+	
+			// searchXHR.then(markExisting.bind(undefined, watchlist));
+
+	// }).catch(_showError);
+
 }
 
 function _sendActionToCurrentTab(action, payload) {
@@ -142,7 +177,7 @@ function _sendToTrakt(item) {
 	return _readTraktAuth()
 		.then(_refreshTraktTokenIfNeeded)
 		.then(authObj => {
-			return fetch('https://api.trakt.tv/sync/watchlist', {
+			return fetch(TRAKT_API_ENDPOINTS.WATCHLIST.PUSH, {
 				method: 'POST',
 				headers: new Headers({
 					'Content-Type': 'application/json',
@@ -232,7 +267,7 @@ function _revokeToken(tokenName, authObj) {
 	}
 	const body = new FormData();
 	body.set('token', authObj[tokenName]);
-	return fetch('https://api.trakt.tv/oauth/revoke', {
+	return fetch(TRAKT_API_ENDPOINTS.OAUTH.REVOKE, {
 		headers: new Headers({
 			'Content-Type': 'application/x-www-form-urlencoded',
 			'Authorization': `Bearer ${authObj.accessToken}`,
@@ -292,6 +327,13 @@ function _showResults(query, json) {
 	});
 }
 
+function _markResultsInWatchlist(watchlist) {
+	_sendActionToCurrentTab('showIframe', {
+		type: 'watchlist',
+		payload: watchlist.map(item => `${item[item.type].ids.tmdb}`),
+	});
+}
+
 function _showItemAdded(json, item) {
 
 	// todo: validate what's added, probably with another method before this one
@@ -327,7 +369,7 @@ function _getTraktAuthTokens(authObj) {
 			'grant_type': grantType,
 		}),
 	};
-	return fetch('https://api.trakt.tv/oauth/token', fetchParams)
+	return fetch(TRAKT_API_ENDPOINTS.OAUTH.TOKEN, fetchParams)
 		.then(_parseJSONResponse)
 		.then(json => {
 			const authObj = {

@@ -18,6 +18,7 @@ const messageHandlers = {
 	error: showError,
 	results: showResults,
 	loading: showLoading,
+	watchlist: markResultsInWatchlist,
 }
 
 Vue.filter('formatDate', function(value, momentFormat) {
@@ -74,6 +75,7 @@ function showResults(results) {
 	store.commit('setItems', results.items.reduce((memo, value) => {
 		memo[value.id] = Object.assign({
 			isLoading: false,
+			isInWatchlist: false,
 		}, value);
 		return memo;
 	}, {}));
@@ -84,6 +86,10 @@ function showResults(results) {
 function showLoading() {
 	store.commit('reset');
 	app.$router.push('/');
+}
+
+function markResultsInWatchlist(watchlist) {
+	store.commit('markResultsInWatchlist', watchlist);
 }
 
 function _sendActionToCurrentTab(action, payload) {

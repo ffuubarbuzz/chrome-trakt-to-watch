@@ -1,6 +1,10 @@
 <template>
 	<form class="searchbar" @submit.prevent="search">
-		<input class="searchbar__input" type="search" v-model.trim="inputVal" @blur="sanitize">
+		<input class="searchbar__input"
+			type="search"
+			v-model.trim="inputVal"
+			@blur="sanitize"
+		>
 		<button class="searchbar__submit" :disabled="!isSubmittable">🔎</button>
 	</form>
 </template>

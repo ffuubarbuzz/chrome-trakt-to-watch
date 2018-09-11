@@ -40,6 +40,13 @@ export default {
 		setItemNotLoading (state, itemId) {
 			state.items[itemId].isLoading = false;
 		},
+		markResultsInWatchlist(state, watchlist) {
+			for (const item in state.items) {
+				if (watchlist.includes(item)) {
+					state.items[item].isInWatchlist = true;
+				}	
+			}
+		}
 	},
 	getters: {
 	},

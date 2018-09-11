@@ -7,7 +7,11 @@
 			<div class="results__number">{{itemsOrder.length}}</div>
 		</div> -->
 		<ul class="results__grid">
-			<Result v-for="item in itemsOrder" :item="items[item]" :key="item.id" />
+			<Result
+				v-for="item in itemsOrder"
+				:item="items[item]"
+				:key="item.id"
+			/>
 		</ul>
 	</div>
 </template>
