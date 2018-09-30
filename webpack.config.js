@@ -17,4 +17,8 @@ module.exports = {
 			loader: 'vue-loader'
 		}]
 	},
+	node: {
+		fs: "empty",
+		net: "empty",
+	}
 }

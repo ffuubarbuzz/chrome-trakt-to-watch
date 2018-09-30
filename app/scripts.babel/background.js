@@ -2,15 +2,13 @@
 
 import moment from 'moment';
 import TranslatedError from './translated-error.js';
+import Trakt from 'trakt.tv';
 
 const TMDB_API_KEY = '1423559168fef1697183d16836a6019b';
 const TRAKT_API_CONFIG = Object.freeze({
 	CLIENT_ID: '8988a8bf210a06fd030cbb614bab6a384d0bbeb42c6d3e91d02e8205842a810d',
 	CLIENT_SECRET: '563bb19a2b86d6335d607369298bee63aec5c87921f4d5649bfe384cb88fa394',
 	REDIRECT_URL: chrome.identity.getRedirectURL('provider_cb'),
-	get authorizeUrl() {
-		return `https://api.trakt.tv/oauth/authorize?response_type=code&client_id=${encodeURIComponent(this.CLIENT_ID)}&redirect_uri=${encodeURIComponent(this.REDIRECT_URL)}`;
-	},
 });
 const TRAKT_API_ENDPOINTS = Object.freeze({
 	WATCHLIST: {
@@ -29,6 +27,11 @@ const TRAKT_CREDENTIALS_EMPTY = Object.freeze({
 	tokenExpirationDate: false,
 });
 const traktCredentials = Object.assign({}, TRAKT_CREDENTIALS_EMPTY);
+const trakt = new Trakt({
+	client_id: TRAKT_API_CONFIG.CLIENT_ID,
+	client_secret: TRAKT_API_CONFIG.CLIENT_SECRET,
+	redirect_uri:TRAKT_API_CONFIG .REDIRECT_URL,
+});
 
 const TRAKT_GRANT_TYPE_CREDENTIAL_NAMES = {
 	// these strings come from Trakt API
@@ -290,7 +293,7 @@ function _revokeToken(tokenName, authObj) {
 function _getTraktAuthCode() {
 	return new Promise((resolve, reject) => {
 		chrome.identity.launchWebAuthFlow({
-			url: TRAKT_API_CONFIG.authorizeUrl,
+			url: trakt.get_url(),
 			'interactive': true,
 		}, url => {
 			if (chrome.runtime.lastError) {
@@ -356,22 +359,15 @@ function _showError( error) {
 
 function _getTraktAuthTokens(authObj) {
 	const {grantType, credential} = authObj;
-	const fetchParams = {
-		method: 'POST',
-		headers: new Headers({
-			'Content-Type': 'application/json',
-		}),
-		body: JSON.stringify({
-			[TRAKT_GRANT_TYPE_CREDENTIAL_NAMES[grantType]]: credential,
-			'client_id': TRAKT_API_CONFIG.CLIENT_ID,
-			'client_secret': TRAKT_API_CONFIG.CLIENT_SECRET,
-			'redirect_uri': TRAKT_API_CONFIG.REDIRECT_URL,
-			'grant_type': grantType,
-		}),
-	};
-	return fetch(TRAKT_API_ENDPOINTS.OAUTH.TOKEN, fetchParams)
-		.then(_parseJSONResponse)
-		.then(json => {
+	const nonceArray = new Uint32Array(16);
+	const nonce = crypto.getRandomValues(nonceArray).join('');
+
+	if (grantType === 'authorization_code') {
+		return trakt.exchange_code(credential, nonce).then(result => {
+			console.log(result);
+			//todo: check if nonce is the same
+			// contains tokens & session information
+			// API can now be used with authorized requests
 			const authObj = {
 				accessToken: json.access_token,
 				refreshToken: json.refresh_token,
@@ -379,6 +375,43 @@ function _getTraktAuthTokens(authObj) {
 			};
 			return authObj;
 		});
+	}
+	if (grantType === 'refresh_token') {
+		return trakt.refresh_token().then(result => {
+			// results are auto-injected in the main module cache
+			console.log(result);
+			const authObj = {
+				accessToken: json.access_token,
+				refreshToken: json.refresh_token,
+				tokenExpirationDate: moment().add(json.expires_in, 's').valueOf(),
+			};
+			return authObj;
+		});
+	}
+
+	// const fetchParams = {
+	// 	method: 'POST',
+	// 	headers: new Headers({
+	// 		'Content-Type': 'application/json',
+	// 	}),
+	// 	body: JSON.stringify({
+	// 		[TRAKT_GRANT_TYPE_CREDENTIAL_NAMES[grantType]]: credential,
+	// 		'client_id': TRAKT_API_CONFIG.CLIENT_ID,
+	// 		'client_secret': TRAKT_API_CONFIG.CLIENT_SECRET,
+	// 		'redirect_uri': TRAKT_API_CONFIG.REDIRECT_URL,
+	// 		'grant_type': grantType,
+	// 	}),
+	// };
+	// return fetch(TRAKT_API_ENDPOINTS.OAUTH.TOKEN, fetchParams)
+	// 	.then(_parseJSONResponse)
+	// 	.then(json => {
+	// 		const authObj = {
+	// 			accessToken: json.access_token,
+	// 			refreshToken: json.refresh_token,
+	// 			tokenExpirationDate: moment().add(json.expires_in, 's').valueOf(),
+	// 		};
+	// 		return authObj;
+	// 	});
 }
 
 function _storeTraktAuth(authObj) {
