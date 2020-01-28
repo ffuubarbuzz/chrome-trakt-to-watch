@@ -2,7 +2,6 @@
 import gulp from 'gulp';
 import gulpLoadPlugins from 'gulp-load-plugins';
 import del from 'del';
-import runSequence from 'run-sequence';
 import webpackStream from 'webpack-stream';
 import webpack from 'webpack';
 import {spawn} from 'child_process';
@@ -128,12 +127,11 @@ gulp.task('package', function () {
       .pipe(gulp.dest('package'));
 });
 
-gulp.task('build', (cb) => {
-  runSequence(
+gulp.task('build', gulp.series(
     'lint', 'babel', 'chromeManifest',
-    ['html', 'images', 'extras'],
-    'size', cb);
-});
+    gulp.parallel('html', 'images', 'extras'),
+    'size')
+);
 
 gulp.task('upload', () => {
   var manifest = require('./dist/manifest.json');
@@ -161,10 +159,6 @@ gulp.task('upload', () => {
   });
 });
 
-gulp.task('default', gulp.series('clean', cb => {
-  runSequence('build', cb);
-}));
+gulp.task('default', gulp.series('clean', 'build'));
 
-gulp.task('release', cb => {
-  runSequence('build', 'package', 'upload', cb);
-});
+gulp.task('release', gulp.series('build', 'package', 'upload'));
