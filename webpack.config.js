@@ -1,3 +1,5 @@
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
+
 module.exports = {
 	context: __dirname + '/app/scripts.babel/',
 	entry: {
@@ -15,6 +17,15 @@ module.exports = {
 		}, {
 			test: /\.vue$/,
 			loader: 'vue-loader'
+		}, {
+			test: /\.css$/,
+			use: [
+				'vue-style-loader',
+				'css-loader'
+			]
 		}]
 	},
+	plugins: [
+		new VueLoaderPlugin()
+	]
 }

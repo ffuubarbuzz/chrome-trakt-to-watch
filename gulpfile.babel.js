@@ -96,11 +96,12 @@ gulp.task('babel', () => {
 
 gulp.task('clean', del.bind(null, ['dist']));
 
-gulp.task('vue', () => {
+gulp.task('vue', done => {
   spawn('./node_modules/.bin/vue-devtools');
+  done();
 })
 
-gulp.task('watch', ['lint', 'babel', 'vue'], () => {
+gulp.task('watch', gulp.series('lint', 'babel', 'vue', done => {
   $.livereload.listen();
 
   gulp.watch([
@@ -110,10 +111,11 @@ gulp.task('watch', ['lint', 'babel', 'vue'], () => {
     'app/images/**/*',
     'app/styles/**/*',
     'app/_locales/**/*.json'
-  ]).on('change', $.livereload.reload);
+  ]).on('change', $.livereload);
 
-  gulp.watch(['app/scripts.babel/**/*.js', 'app/scripts.babel/**/*.vue'], ['lint', 'babel']);
-});
+  gulp.watch(['app/scripts.babel/**/*.js', 'app/scripts.babel/**/*.vue'], gulp.series('lint', 'babel'));
+  done();
+}));
 
 gulp.task('size', () => {
   return gulp.src('dist/**/*').pipe($.size({title: 'build', gzip: true}));
@@ -159,9 +161,9 @@ gulp.task('upload', () => {
   });
 });
 
-gulp.task('default', ['clean'], cb => {
+gulp.task('default', gulp.series('clean', cb => {
   runSequence('build', cb);
-});
+}));
 
 gulp.task('release', cb => {
   runSequence('build', 'package', 'upload', cb);
