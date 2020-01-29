@@ -3,6 +3,10 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
+import VueIco, {
+	icoClose,
+	icoSettingsApplications,
+} from 'vue-ico'
 import Iframe from './vue/iframe.vue';
 import translationComponent from './vue/translation.vue';
 import moment from 'moment';
@@ -11,6 +15,10 @@ import storeConfig from './iframe/store-config.js';
 
 Vue.use(Vuex);
 Vue.use(VueRouter);
+Vue.use(VueIco, {
+  close: icoClose,
+  settingsApplications: icoSettingsApplications,
+});
 
 const store = new Vuex.Store(storeConfig);
 

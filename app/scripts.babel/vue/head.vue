@@ -4,8 +4,8 @@
 			trakt.<span class="name__secondary">extension</span>
 		</strong>
 		<div class="head__controls">
-			<button class="head__control" @click="openOptions">⚙</button>
-			<button class="head__control" @click="close">❌</button>
+			<button class="head__control" @click="openOptions"><ico name="settingsApplications" size="18" color="grey" /></button>
+			<button class="head__control" @click="close"><ico name="close" size="18" color="grey" /></button>
 		</div>
 	</header>
 </template>
@@ -43,7 +43,7 @@
 	}
 
 	.head__control {
-		margin: 0 0 5px;
+		margin: 0 0 0 5px;
 		padding: 0;
 		border: none;
 		background: none;
