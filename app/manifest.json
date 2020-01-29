@@ -48,6 +48,6 @@
     },
     "default_title": "chrome ext"
   },
-  "web_accessible_resources": ["iframe.html"],
+  "web_accessible_resources": ["iframe.html", "images/playlist_add-24px.svg"],
   "content_security_policy": "script-src 'self' http://localhost:8098; object-src 'self'"
 }

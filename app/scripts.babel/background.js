@@ -130,15 +130,15 @@ function _contextMenuClick(info) {
 	if (info.menuItemId !== CONTEXT_MENU_ITEM_ID) {
 		return;
 	}
-	_multiSearch(info.selectionText);
+	search({query: info.selectionText});
 	_sendActionToCurrentTab('showIframe', {
 		type: 'loading',
 	});
 }
 
-function _multiSearch(query) {
+function search({query, category = 'multi'}) {
 	const queryTerm = encodeURIComponent(query);
-	const queryURL = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${queryTerm}`;
+	const queryURL = `https://api.themoviedb.org/3/search/${category}?api_key=${TMDB_API_KEY}&query=${queryTerm}`;
 	const getWatchlistPromise = _getWatchlist();
 	const searchXHR = fetch(queryURL)
 		.then(_parseJSONResponse)
@@ -255,10 +255,6 @@ function unauthorizeTrakt() {
 
 function getTranslation(payload, sendResponse) {
 	sendResponse(chrome.i18n.getMessage(payload.tag, payload.substitutions));
-}
-
-function search(query) {
-	_multiSearch(query);
 }
 
 function _revokeToken(tokenName, authObj) {

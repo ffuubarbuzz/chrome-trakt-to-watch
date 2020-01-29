@@ -12,6 +12,13 @@ const iframeStyles = `
 	border: none;
 	z-index: 2147483647;
 `;
+const enhanceButtonStyles = `
+	background: none;
+	border: none;
+	margin: 0 0 0 .2em;
+	padding: 0;
+	vertical-align: middle;
+`;
 
 
 const actions = {
@@ -24,6 +31,8 @@ const actions = {
 chrome.runtime.onMessage.addListener(request => {
 	actions[request.action](request.payload);
 });
+
+maybeEnhancePage();
 
 function showIframe(payload) {
 	Object.assign(iframeDataCached, payload);
@@ -46,7 +55,9 @@ function requestData(query) {
 		chrome.runtime.sendMessage({
 			type: 'search',
 			target: 'background',
-			payload: query,
+			payload: {
+				query,
+			},
 		});
 	} else {
 		iframe.contentWindow.postMessage(iframeDataCached, '*');
@@ -72,4 +83,37 @@ function _attachIframe() {
 function _unattachIframe() {
 	document.body.removeChild(iframe);
 	isIframeAttached = false;
+}
+
+function maybeEnhancePage() {
+	const hasMovie = document.querySelector('[data-attrid^="kc:/film/film"]');
+	const hasShow = !hasMovie && document.querySelector('[data-attrid^="kc:/tv/tv_program"]');
+	if (!hasMovie && !hasShow) {
+		return;
+	}
+	const nameContainer = document.querySelector('[data-attrid="title"]');
+	if (!nameContainer) {
+		return;
+	}
+	const name = nameContainer.innerText;
+	if (!name) {
+		return;
+	}
+	const button = document.createElement('button');
+	const icon = document.createElement('img');
+	icon.setAttribute('src', chrome.runtime.getURL('images/playlist_add-24px.svg'));
+	button.append(icon);
+	button.setAttribute('style', enhanceButtonStyles);
+	button.setAttribute('title', 'Add to your trakt.tv watchlist');
+	nameContainer.append(button);
+	button.addEventListener('click', () => {
+		chrome.runtime.sendMessage({
+			type: 'search',
+			target: 'background',
+			payload: {
+				query: name,
+				category: hasMovie ? 'movie' : 'tv',
+			},
+		});
+	});
 }
