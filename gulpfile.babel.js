@@ -72,7 +72,6 @@ gulp.task('html',  () => {
 gulp.task('chromeManifest', () => {
   return gulp.src('app/manifest.json')
     .pipe($.chromeManifest({
-      buildnumber: true,
       background: {
         target: 'scripts/background.js',
         exclude: [
@@ -80,7 +79,7 @@ gulp.task('chromeManifest', () => {
         ]
       }
     }))
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest('../dist'));
 });
 
 gulp.task('babel', () => {
