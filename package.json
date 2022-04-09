@@ -45,7 +45,7 @@
     "babel-loader": "^7.1.2",
     "chrome-webstore-upload": "^0.2.2",
     "css-loader": "^0.28.7",
-    "moment": "^2.20.0",
+    "moment": "^2.29.2",
     "vue": "^2.5.9",
     "vue-ico": "^1.0.15",
     "vue-loader": "^15.8.3",
